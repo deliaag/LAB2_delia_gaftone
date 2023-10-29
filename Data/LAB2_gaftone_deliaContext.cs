@@ -19,5 +19,9 @@ namespace LAB2_gaftone_delia.Data
         public DbSet<LAB2_gaftone_delia.Models.Publisher>? Publisher { get; set; }
 
         public DbSet<LAB2_gaftone_delia.Models.Author>? Author { get; set; }
+
+        public DbSet<LAB2_gaftone_delia.Models.Category>? Category { get; set; }
+
+        public DbSet<LAB2_gaftone_delia.Models.BookCategory>? BookCategory { get; set; }
     }
 }
