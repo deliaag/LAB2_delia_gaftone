@@ -11,7 +11,7 @@ using LAB2_gaftone_delia.Models;
 
 namespace LAB2_gaftone_delia.Pages.Books
 {
-    public class EditModel : PageModel
+    public class EditModel : BookCategoriesPageModel
     {
         private readonly LAB2_gaftone_delia.Data.LAB2_gaftone_deliaContext _context;
 
@@ -30,23 +30,75 @@ namespace LAB2_gaftone_delia.Pages.Books
                 return NotFound();
             }
 
-            var book =  await _context.Book.Include(b => b.Author).FirstOrDefaultAsync(m => m.ID == id);
-            if (book == null)
+            Book = await _context.Book
+                .Include(b => b.AuthorID)
+                .Include(b => b.Publisher)
+                .Include(b => b.BookCategories)
+                .ThenInclude(b => b.Category)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.ID == id);
+            //var book =  await _context.Book.Include(b => b.Author).FirstOrDefaultAsync(m => m.ID == id);
+            if (Book == null)
             {
                 return NotFound();
             }
-            Book = book;
+            //Book = book;
+
+//apelam PopulateAssignedCategoryData pt a obtine info necesare
+//checkboxurilor folosind clasa AssignedCategoryData
+
+            PopulateAssignedCategoryData(_context, Book);
+
+            var authorList = _context.Author.Select(x => new
+            {
+                x.ID, FullName = x.LastName + " " + x.FirstName
+            });
+
             ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID",
 "PublisherName");
-            ViewData["AuthorID"] = new SelectList(_context.Set<Author>(), "ID", "FirstName");
+            ViewData["AuthorID"] = new SelectList(authorList, "ID", "FullName");
 
             return Page();
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id, string[] selectedCategories)
         {
+            if(id == null)
+            {
+                return NotFound();
+            }
+
+            var bookToUpdate = await _context.Book
+                .Include(i => i.AuthorID)
+                .Include(i => i.Publisher)
+                .Include(i => i.BookCategories)
+                .ThenInclude(i => i.Category)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (bookToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            if(await TryUpdateModelAsync<Book>(bookToUpdate,
+                "Book",
+                i => i.Title , i => i.AuthorID,
+                i => i.Price, includeExpressions => includeExpressions.PublishingDate,
+                i=> i.PublisherID))
+            {
+                UpdateBookCategories(_context, selectedCategories, bookToUpdate);
+                await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
+            }
+
+            //apelam UpdateBookCategories pt a aplica info din checkboxuri la entitatea Books
+            //care este editata
+            UpdateBookCategories(_context, selectedCategories, bookToUpdate);
+            PopulateAssignedCategoryData(_context, bookToUpdate);
+            return Page();
+
             if (!ModelState.IsValid)
             {
                 return Page();

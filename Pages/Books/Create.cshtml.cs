@@ -10,7 +10,7 @@ using LAB2_gaftone_delia.Models;
 
 namespace LAB2_gaftone_delia.Pages.Books
 {
-    public class CreateModel : PageModel
+    public class CreateModel : BookCategoriesPageModel
     {
         private readonly LAB2_gaftone_delia.Data.LAB2_gaftone_deliaContext _context;
 
@@ -21,10 +21,24 @@ namespace LAB2_gaftone_delia.Pages.Books
 
         public IActionResult OnGet()
         {
+            var authorList = _context.Author.Select(x => new
+            {
+                x.ID,
+                FullName = x.LastName + " " + x.FirstName
+            });
+
             ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID",
 "PublisherName");
             ViewData["AuthorID"] = new SelectList(_context.Set<Author>(), "ID", "FullName");
+
+            var book = new Book();
+
+            book.BookCategories = new List<BookCategory>();
+
+            PopulateAssignedCategoryData(_context, book);
+
             return Page();
+
         }
 
         [BindProperty]
@@ -32,8 +46,23 @@ namespace LAB2_gaftone_delia.Pages.Books
         
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string[] selectedCategories)
         {
+            var newBook = new Book();
+            if(selectedCategories != null)
+            {
+                newBook.BookCategories = new List<BookCategory>();
+                foreach (var cat in selectedCategories)
+                {
+                    var catToAdd = new BookCategory()
+                    {
+                        CategoryID = int.Parse(cat)
+                    };
+                    newBook.BookCategories.Add(catToAdd);
+                }
+            }
+            Book.BookCategories = newBook.BookCategories;
+            
           if (!ModelState.IsValid || _context.Book == null || Book == null)
             {
                 return Page();
