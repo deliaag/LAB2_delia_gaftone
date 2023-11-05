@@ -11,6 +11,13 @@ namespace LAB2_gaftone_delia.Models
         public string? LastName { get; set; }
 
         [Display(Name = "Full Name")]
-        public string FullName => FirstName + " " + LastName;
+        public string FullName
+        {
+            get
+            {
+                return FirstName + " " + LastName;
+            }
+        }
+        public ICollection<Book>? Books { get; set; }
     }
 }
