@@ -31,7 +31,7 @@ namespace LAB2_gaftone_delia.Pages.Books
             }
 
             Book = await _context.Book
-                .Include(b => b.AuthorID)
+                .Include(b => b.Author)
                 .Include(b => b.Publisher)
                 .Include(b => b.BookCategories)
                 .ThenInclude(b => b.Category)
@@ -71,7 +71,7 @@ namespace LAB2_gaftone_delia.Pages.Books
             }
 
             var bookToUpdate = await _context.Book
-                .Include(i => i.AuthorID)
+                .Include(i => i.Author)
                 .Include(i => i.Publisher)
                 .Include(i => i.BookCategories)
                 .ThenInclude(i => i.Category)

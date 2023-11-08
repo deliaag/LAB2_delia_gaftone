@@ -27,8 +27,7 @@ namespace LAB2_gaftone_delia.Pages.Books
                 FullName = x.LastName + " " + x.FirstName
             });
 
-            ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID",
-"PublisherName");
+            ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID", "PublisherName");
             ViewData["AuthorID"] = new SelectList(_context.Set<Author>(), "ID", "FullName");
 
             var book = new Book();
