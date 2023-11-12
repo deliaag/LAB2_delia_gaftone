@@ -44,19 +44,21 @@ namespace LAB2_gaftone_delia.Pages.Books
             }
             //Book = book;
 
-//apelam PopulateAssignedCategoryData pt a obtine info necesare
-//checkboxurilor folosind clasa AssignedCategoryData
+            //apelam PopulateAssignedCategoryData pt a obtine info necesare
+            //checkboxurilor folosind clasa AssignedCategoryData
 
             PopulateAssignedCategoryData(_context, Book);
 
             var authorList = _context.Author.Select(x => new
             {
-                x.ID, FullName = x.LastName + " " + x.FirstName
+                x.ID,
+                FullName = x.LastName + " " + x.FirstName
             });
 
             ViewData["PublisherID"] = new SelectList(_context.Set<Publisher>(), "ID",
 "PublisherName");
-            ViewData["AuthorID"] = new SelectList(authorList, "ID", "FullName");
+            ViewData["AuthorID"] = new SelectList(_context.Set<Author>(), "ID",
+"FirstName");
 
             return Page();
         }
@@ -65,7 +67,7 @@ namespace LAB2_gaftone_delia.Pages.Books
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int? id, string[] selectedCategories)
         {
-            if(id == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -82,11 +84,11 @@ namespace LAB2_gaftone_delia.Pages.Books
                 return NotFound();
             }
 
-            if(await TryUpdateModelAsync<Book>(bookToUpdate,
+            if (await TryUpdateModelAsync<Book>(bookToUpdate,
                 "Book",
-                i => i.Title , i => i.AuthorID,
-                i => i.Price, includeExpressions => includeExpressions.PublishingDate,
-                i=> i.PublisherID))
+                i => i.Title, i => i.AuthorID,
+                i => i.Price, i => i.PublishingDate,
+                i => i.PublisherID))
             {
                 UpdateBookCategories(_context, selectedCategories, bookToUpdate);
                 await _context.SaveChangesAsync();
@@ -98,36 +100,38 @@ namespace LAB2_gaftone_delia.Pages.Books
             UpdateBookCategories(_context, selectedCategories, bookToUpdate);
             PopulateAssignedCategoryData(_context, bookToUpdate);
             return Page();
+            /*
+                        if (!ModelState.IsValid)
+                        {
+                            return Page();
+                        }
 
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+                        _context.Attach(Book).State = EntityState.Modified;
 
-            _context.Attach(Book).State = EntityState.Modified;
+                        try
+                        {
+                            await _context.SaveChangesAsync();
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!BookExists(Book.ID))
+                            {
+                                return NotFound();
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BookExists(Book.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                        return RedirectToPage("./Index");
+                    }
 
-            return RedirectToPage("./Index");
-        }
-
-        private bool BookExists(int id)
-        {
-          return (_context.Book?.Any(e => e.ID == id)).GetValueOrDefault();
+                    private bool BookExists(int id)
+                    {
+                      return (_context.Book?.Any(e => e.ID == id)).GetValueOrDefault();
+                    }
+            */
         }
     }
 }
