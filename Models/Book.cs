@@ -26,5 +26,6 @@ namespace LAB2_gaftone_delia.Models
         public Publisher? Publisher { get; set; } //navigation property
 
         public ICollection<BookCategory>? BookCategories { get; set; }
+        public ICollection<Borrowing>? Borrowings { get; set; }
     }
 }
